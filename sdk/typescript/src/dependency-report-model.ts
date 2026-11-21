@@ -300,9 +300,18 @@ function prepareCheck(check: Check, index: number) {
   ];
   return prepareFindings(findings);
 }
+export function isCoverageGap(finding: Finding): boolean {
+  return (
+    finding.kind === "coverage" ||
+    (finding.kind === "stack" && !finding.assessment.observation)
+  );
+}
+
 function prepareFindings(findings: Finding[]): PreparedCheck {
   const order = (finding: Finding) =>
-    finding.kind !== "coverage" ? verdictRank(finding.item.verdict) : 2.5;
+    finding.kind === "coverage" || isCoverageGap(finding)
+      ? verdictOrder.length
+      : verdictRank(finding.item.verdict);
   findings.sort(
     (a, b) =>
       order(a) - order(b) ||
